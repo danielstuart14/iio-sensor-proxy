@@ -28,6 +28,7 @@ typedef struct DrvData {
 	const char *name;
 	AccelVec3 *mount_matrix;
 	AccelLocation location;
+	double scale;
 	gboolean sends_kevent;
 } DrvData;
 
@@ -141,7 +142,7 @@ accelerometer_changed (void)
 	close (fd);
 
 	/* Scale from 1G ~= 256 to a value in m/s² */
-	readings.scale = 1.0 / 256 * 9.81;
+	readings.scale = drv_data->scale / 256 * 9.81;
 
 	g_debug ("Accel read from input on '%s': %d, %d, %d (scale %lf)", drv_data->name, accel_x, accel_y, accel_z, readings.scale);
 
@@ -204,6 +205,7 @@ input_accel_open (GUdevDevice        *device,
 	drv_data->client = g_udev_client_new (subsystems);
 	drv_data->mount_matrix = setup_mount_matrix (device);
 	drv_data->location = setup_accel_location (device);
+	drv_data->scale = 1.0;
 	drv_data->callback_func = callback_func;
 	drv_data->user_data = user_data;
 

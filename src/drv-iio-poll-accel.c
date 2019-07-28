@@ -25,7 +25,6 @@ typedef struct DrvData {
 	const char         *name;
 	AccelVec3          *mount_matrix;
 	AccelLocation       location;
-
 	double              scale;
 } DrvData;
 
@@ -128,9 +127,7 @@ iio_poll_accel_open (GUdevDevice        *device,
 	drv_data->location = setup_accel_location (device);
 	drv_data->callback_func = callback_func;
 	drv_data->user_data = user_data;
-	drv_data->scale = g_udev_device_get_sysfs_attr_as_double (device, "in_accel_scale");
-	if (drv_data->scale == 0.0)
-		drv_data->scale = 1.0;
+	drv_data->scale = get_accel_scale (device);
 
 	return TRUE;
 }

@@ -10,6 +10,7 @@
 #include <gudev/gudev.h>
 
 #include "accel-location.h"
+#include "accel-scale.h"
 
 typedef enum {
 	DRIVER_TYPE_ACCEL,
