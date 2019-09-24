@@ -87,33 +87,40 @@ send_uinput_event (OrientationData *data)
 	ev.type = EV_ABS;
 	ev.code = ABS_X;
 	ev.value = data->accel_x;
-	(void) write (data->uinput, &ev, sizeof(ev));
+	if(write (data->uinput, &ev, sizeof(ev)) != sizeof(ev))
+		goto error;
 
 	ev.code = ABS_Y;
 	ev.value = data->accel_y;
-	(void) write (data->uinput, &ev, sizeof(ev));
+	if(write (data->uinput, &ev, sizeof(ev)) != sizeof(ev))
+		goto error;
 
 	ev.code = ABS_Z;
 	ev.value = data->accel_z;
-	(void) write (data->uinput, &ev, sizeof(ev));
+	if(write (data->uinput, &ev, sizeof(ev)) != sizeof(ev))
+		goto error;
 
 	memset(&ev, 0, sizeof(ev));
 	gettimeofday(&ev.time, NULL);
 	ev.type = EV_SYN;
 	ev.code = SYN_REPORT;
-	(void) write (data->uinput, &ev, sizeof(ev));
+	if(write (data->uinput, &ev, sizeof(ev)) != sizeof(ev))
+		goto error;
 
 	if (!data->uinput_dev)
 		data->uinput_dev = setup_uinput_udev (data->client);
 	if (!data->uinput_dev)
 		return FALSE;
 
-	if (write_sysfs_string ((char *) "uevent", (char *) g_udev_device_get_sysfs_path (data->uinput_dev), (char *) "change") < 0) {
-		g_warning ("Failed to write uevent");
-		return FALSE;
-	}
+	if (write_sysfs_string ((char *) "uevent", (char *) g_udev_device_get_sysfs_path (data->uinput_dev), (char *) "change") < 0)
+		goto error;
 
 	return TRUE;
+
+error:
+	g_warning ("Failed to write uevent");
+	return FALSE;
+
 }
 
 static gboolean
